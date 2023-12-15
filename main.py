@@ -5,7 +5,7 @@ from PIL import Image
 from constants import COMPUTED_DIRECTORY_NAME
 from custom_types import LaplaceEdgeDetectorType, Laplacian2EdgeDetectorType
 from utils import convertToListImage, convertToPillowImage, saveImage
-from services import laplaceEdgeDetection, laplacian2EdgeDetection, sobelEdgeDetection
+from services import laplaceEdgeDetection, laplacian2EdgeDetection, sobelEdgeDetection, unsharpMasking
 
 def labTask(image_path: str) -> None:
     computed_directory = f'./{COMPUTED_DIRECTORY_NAME}/'
@@ -33,6 +33,13 @@ def labTask(image_path: str) -> None:
                 sobel_result = sobelEdgeDetection(image)
 
                 saveImage(convertToPillowImage(sobel_result), f'{computed_directory}{file_name}_sobel_{file_extension}')
+
+                unsharp_masking_ks = [0.5, 1, 1.5]
+
+                unsharp_masking_results = [unsharpMasking(image, k) for k in unsharp_masking_ks]
+
+                for i in range(len(unsharp_masking_results)):
+                    saveImage(convertToPillowImage(unsharp_masking_results[i]), f'{computed_directory}{file_name}_unsharp_masking_{unsharp_masking_ks[i]}{file_extension}')
 
                 
 

@@ -70,11 +70,13 @@ def linearSpatialFiltering(image: ListImage, filter_kernel: FilterKernel) -> Lis
 
     return convertToProperImage(filtered_image)
 
+# only for 3x3 window
 def laplacian2EdgeDetection(image: ListImage, type: Laplacian2EdgeDetectorType) -> ListImage:
     operator_mask_kernel = [[(1 if type=='downward' else -1) * (1 if (i != 1 or j != 1) else -8.) for j in range(3)] for i in range(3)]
 
     return linearSpatialFiltering(image, operator_mask_kernel)
 
+# only for 3x3 window
 def laplaceEdgeDetection(image: ListImage, type: LaplaceEdgeDetectorType) -> ListImage:
     def maskKernelMainWeightsCondition(i: int, j: int, type: LaplaceEdgeDetectorType = type):
         if type == 'horizontal':
@@ -90,6 +92,7 @@ def laplaceEdgeDetection(image: ListImage, type: LaplaceEdgeDetectorType) -> Lis
 
     return linearSpatialFiltering(image, operator_mask_kernel)
 
+# only for 3x3 window
 def sobelEdgeDetection(image: ListImage) -> ListImage:
     horizontal_mask_kernel = [[-1, -2, -1], [0, 0, 0.], [1, 2, 1]]
 
@@ -102,3 +105,10 @@ def sobelEdgeDetection(image: ListImage) -> ListImage:
     result_image = [[sqrt(horizontal_edges[i][j] ** 2 + vertical_edges[i][j] ** 2) for j in range(len(image[0]))] for i in range(len(image))]
 
     return convertToProperImage(result_image)
+
+def unsharpMasking(image: ListImage, k: float = 1, filter_kernel_size: int = 3) -> ListImage:
+    center_kernel_element_condition = lambda i, j: i == j and filter_kernel_size == j + i + 1
+
+    filter_kernel = [[((1 + k) * (filter_kernel_size ** 2) - k)/ (filter_kernel_size ** 2) if center_kernel_element_condition(i, j) else -k / (filter_kernel_size ** 2) for j in range(filter_kernel_size)] for i in range(filter_kernel_size)]
+
+    return linearSpatialFiltering(image, filter_kernel)
