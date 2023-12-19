@@ -10,6 +10,6 @@ FloatOrNone = Union[float, None]
 
 ImageFunction = Callable[[int, int], int]
 
-Laplacian2EdgeDetectorType = Literal['downward', 'upward']
+EdgeDetectorDirectionType = Literal['downward', 'upward']
 
 LaplaceEdgeDetectorType = Literal['horizontal', 'main_diagonal', 'vertical', 'antidiagonal']

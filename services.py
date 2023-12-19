@@ -1,6 +1,6 @@
 from math import sqrt
 from typing import Tuple
-from custom_types import LaplaceEdgeDetectorType, Laplacian2EdgeDetectorType, ListImage, FilterKernel, ImageFunction, ListImageRaw
+from custom_types import LaplaceEdgeDetectorType, EdgeDetectorDirectionType, ListImage, FilterKernel, ImageFunction, ListImageRaw
 from utils import convertToProperImage
 
 def getMirroredImageFunction(image: ListImage, filter_kernel_sizes: Tuple[int, int]) -> ImageFunction:
@@ -71,13 +71,13 @@ def linearSpatialFiltering(image: ListImage, filter_kernel: FilterKernel) -> Lis
     return convertToProperImage(filtered_image)
 
 # only for 3x3 window
-def laplacian2EdgeDetection(image: ListImage, type: Laplacian2EdgeDetectorType) -> ListImage:
+def laplacian2EdgeDetection(image: ListImage, type: EdgeDetectorDirectionType) -> ListImage:
     operator_mask_kernel = [[(1 if type=='downward' else -1) * (1 if (i != 1 or j != 1) else -8.) for j in range(3)] for i in range(3)]
 
     return linearSpatialFiltering(image, operator_mask_kernel)
 
 # only for 3x3 window
-def laplaceEdgeDetection(image: ListImage, type: LaplaceEdgeDetectorType) -> ListImage:
+def laplaceEdgeDetection(image: ListImage, type: LaplaceEdgeDetectorType, direction_type: EdgeDetectorDirectionType) -> ListImage:
     def maskKernelMainWeightsCondition(i: int, j: int, type: LaplaceEdgeDetectorType = type):
         if type == 'horizontal':
             return i == 1
@@ -88,7 +88,9 @@ def laplaceEdgeDetection(image: ListImage, type: LaplaceEdgeDetectorType) -> Lis
         else:
             return i == 2 - j
         
-    operator_mask_kernel = [[2. if maskKernelMainWeightsCondition(i, j) else -1 for j in range(3)] for i in range(3)]
+    multiplier = 1 if direction_type == 'upward' else -1
+
+    operator_mask_kernel = [[multiplier * (2. if maskKernelMainWeightsCondition(i, j) else -1) for j in range(3)] for i in range(3)]
 
     return linearSpatialFiltering(image, operator_mask_kernel)
 
